@@ -55,28 +55,48 @@ macro zxyhighlightword()
         sel = GetBufSelText(hbuf)
     }
     RunCmd("highlight word")
-    SetReg(highlighttext, sel)
+    global g_sz_highlight_text
+    g_sz_highlight_text = sel
 }
 
 macro zxyYankhighlightText()
 {
+    global g_sz_highlight_text
     hbuf = GetCurrentBuf ()
-    sel = GetReg(highlighttext)
-    SetBufSelText(hbuf, sel)
+    SetBufSelText(hbuf, g_sz_highlight_text)
 }
 
-macro zxySearchHighlightForward()
+macro zxySearch(cmd)
 {
-    sel = GetReg(highlighttext)
-    LoadSearchPattern(sel, 1, 0, 1)
-    RunCmd("Search Forward")
+    hbuf = GetCurrentBuf ()
+    sel = GetBufSelText(hbuf)
+    if(sel == "")
+    {
+        sel = g_sz_search_text
+    }
+
+    if(sel == "")
+    {
+        RunCmd(cmd)
+        return
+    }
+
+    global g_sz_search_text
+    global g_b_fWholeWordsOnly
+    if g_b_fWholeWordsOnly == nil
+        g_b_fWholeWordsOnly = false
+    LoadSearchPattern(sel, 1, 0, g_b_fWholeWordsOnly)
+    RunCmd(cmd)
 }
 
-macro zxySearchHighlightBackward()
+macro zxySearchForward()
 {
-    sel = GetReg(highlighttext)
-    LoadSearchPattern(sel, 1, 0, 1)
-    RunCmd("Search Backward")
+    zxySearch("Search Forward")
+}
+
+macro zxySearchBackward()
+{
+    zxySearch("Search Backward")
 }
 
 macro zxycopy()
@@ -121,7 +141,7 @@ macro zxyGetFn()
     path = GetBufName(hbuf)
     idx = strrchr(path, "\\")
     fn = strmid(path, idx + 1, strlen(path))
-    
+
     Msg(fn)
     hbufClip = GetBufHandle("Clipboard")
     ClearBuf(hbufClip)
