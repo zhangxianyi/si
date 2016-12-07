@@ -352,6 +352,26 @@ macro GuessJumpLink()
 
 macro jumptosymbolIn()
 {
-    /* msg(GetCurSymbol ()) */
-    JumpToSymbolDef (GetCurSymbol ())
+    hbuf = GetCurrentBuf()
+    JumpToLocation(GetSymbolLocationFromLn(hbuf, GetBufLnCur(hbuf)))
+    return
+}
+macro oldjumptosymbolIn()
+{
+    hbuf = NewBuf("output")
+    count = GetSymbolLocationEx(GetCurSymbol(), hbuf, 1, 1, 1)
+    ln = 0
+    fname = GetBufName(GetCurrentBuf())
+    while (ln < count)
+    {
+        loc = GetBufLine(hbuf, ln)
+        if(fname == loc.File)
+        {
+            JumpToLocation(loc)
+            return
+        }
+
+        ln = ln + 1
+    }
+    CloseBuf(hbuf)
 }
