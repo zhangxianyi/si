@@ -1,3 +1,29 @@
+macro jumptocaller()
+{
+    hbuf = GetCurrentBuf()
+    JumpToLocation(GetSymbolLocationFromLn(hbuf, GetBufLnCur(hbuf)))
+    return
+}
+macro oldjumptocaller()
+{
+    hbuf = NewBuf("output")
+    count = GetSymbolLocationEx(GetCurSymbol(), hbuf, 1, 1, 1)
+    ln = 0
+    fname = GetBufName(GetCurrentBuf())
+    while (ln < count)
+    {
+        loc = GetBufLine(hbuf, ln)
+        if(fname == loc.File)
+        {
+            JumpToLocation(loc)
+            return
+        }
+
+        ln = ln + 1
+    }
+    CloseBuf(hbuf)
+}
+
 /* switch current word, such as */
 /* BOOL_TRUE,BOOL_FALSE         */
 /* ERROR_SUCCESS,ERROR_FAILED   */
@@ -84,9 +110,20 @@ macro zxySearch(cmd)
     global g_sz_search_text
     global g_b_fWholeWordsOnly
     if g_b_fWholeWordsOnly == nil
-        g_b_fWholeWordsOnly = false
+        g_b_fWholeWordsOnly = true
     LoadSearchPattern(sel, 1, 0, g_b_fWholeWordsOnly)
     RunCmd(cmd)
+}
+
+macro zxySwitchWholeWordSearch()
+{
+    if g_b_fWholeWordsOnly == nil
+        g_b_fWholeWordsOnly = false
+    g_b_fWholeWordsOnly = !g_b_fWholeWordsOnly
+    if g_b_fWholeWordsOnly == true
+        Msg("whole word is on")
+    else
+    Msg("whole word is off")
 }
 
 macro zxySearchForward()
